@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ভর্তি ফরম - আবদুর রাজ্জাক দাখিল মাদ্রাসা</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF & html2canvas for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #f3f4f6;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2310b981" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        }
+        .fade-in-up { animation: fadeInUp 0.8s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .input-field:focus { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1), 0 2px 4px -1px rgba(16, 185, 129, 0.06); }
+        .islamic-border { background-image: linear-gradient(45deg, #064e3b 25%, transparent 25%, transparent 50%, #064e3b 50%, #064e3b 75%, transparent 75%, transparent); background-size: 20px 20px; height: 10px; width: 100%; }
+        
+        /* Styles specifically for the PDF printable area */
+        #printableArea {
+            background: white;
+            color: black !important;
+        }
+        #printableArea .label-text {
+            color: #4b5563; /* gray-600 */
+            font-weight: 600;
+        }
+        #printableArea .value-text {
+            color: #111827; /* gray-900 */
+            font-weight: 500;
+            border-bottom: 1px dashed #d1d5db;
+            padding-bottom: 2px;
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 text-gray-800">
+
+    <!-- Main Container -->
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden fade-in-up border border-green-100" id="mainContainer">
+        <div class="islamic-border opacity-20"></div>
+
+        <!-- Header Section (Reusable) -->
+        <header class="bg-gradient-to-r from-green-900 via-green-800 to-green-900 text-white p-8 text-center relative overflow-hidden" id="formHeader">
+            <div class="absolute top-0 left-0 w-full h-full opacity-10">
+                <i class="fas fa-mosque text-9xl absolute -left-10 bottom-0"></i>
+                <i class="fas fa-quran text-9xl absolute -right-10 top-0"></i>
+            </div>
+            <div class="relative z-10">
+                <p class="text-xl mb-2 font-serif text-yellow-300">বিসমিল্লাহির রাহমানির রাহিম</p>
+                <h1 class="text-3xl md:text-4xl font-bold mb-2 tracking-wide">আবদুর রাজ্জাক দাখিল মাদ্রাসা</h1>
+                <p class="text-green-100 text-sm md:text-base">স্থাপিত: ২০১৮ ইং | ইআইআইএন: ১২৩৪৫৬</p>
+                <p class="text-green-200 text-xs md:text-sm mt-1">ডাকঘর: সরফভাটা, থানা: রাঙ্গুনিয়া, জেলা: চট্টগ্রাম</p>
+            </div>
+        </header>
+        <div class="text-center bg-green-800 py-2" id="formTitleBar">
+             <div class="inline-block bg-white text-green-900 px-6 py-1 rounded-full font-bold shadow uppercase tracking-wider text-sm">
+                অনলাইন ভর্তি ফরম
+            </div>
+        </div>
+
+        <!-- ==================== FORM SECTION (Visible Initially) ==================== -->
+        <div id="formSection">
+            <form id="admissionForm" class="p-6 md:p-10 space-y-8">
+                
+                <!-- Section 1: Student Info -->
+                <div class="bg-green-50 p-6 rounded-lg border border-green-100">
+                    <h2 class="text-xl font-bold text-green-900 mb-6 flex items-center border-b border-green-200 pb-2">
+                        <span class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm"><i class="fas fa-user-graduate"></i></span>
+                        শিক্ষার্থীর তথ্য
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">শিক্ষার্থীর নাম (বাংলায়) <span class="text-red-500">*</span></label>
+                            <input type="text" id="studentNameBn" required class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none" placeholder="বাংলায় পূর্ণ নাম">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">শিক্ষার্থীর নাম (ইংরেজিতে)</label>
+                            <input type="text" id="studentNameEn" class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none" placeholder="In Block Letters">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ভর্তি হতে ইচ্ছুক শ্রেণী <span class="text-red-500">*</span></label>
+                            <select id="admissionClass" required class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none bg-white">
+                                <option value="" disabled selected>শ্রেণী নির্বাচন করুন</option>
+                                <option>প্লে (Play)</option>
+                                <option>নার্সারি (Nursery)</option>
+                                <option>১ম শ্রেণী</option>
+                                <option>২য় শ্রেণী</option>
+                                <option>৩য় শ্রেণী</option>
+                                <option>৪র্থ শ্রেণী</option>
+                                <option>৫ম শ্রেণী</option>
+                                <option>৬ষ্ঠ শ্রেণী</option>
+                                <option>৭ম শ্রেণী</option>
+                                <option>৮ম শ্রেণী</option>
+                                <option>৯ম শ্রেণী</option>
+                                <option>দাখিল</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">জন্ম তারিখ <span class="text-red-500">*</span></label>
+                            <input type="date" id="dob" required class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none">
+                        </div>
+                         <div class="col-span-1 md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">লিঙ্গ <span class="text-red-500">*</span></label>
+                            <div class="flex space-x-6">
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="gender" value="ছাত্র" class="text-green-600 focus:ring-green-500" checked><span>ছাত্র</span></label>
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="gender" value="ছাত্রী" class="text-green-600 focus:ring-green-500"><span>ছাত্রী</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Parents Info -->
+                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                    <h2 class="text-xl font-bold text-green-900 mb-6 flex items-center border-b border-gray-200 pb-2">
+                        <span class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm"><i class="fas fa-users"></i></span>
+                        অভিভাবকের তথ্য
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">পিতার নাম <span class="text-red-500">*</span></label>
+                            <input type="text" id="fatherName" required class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">মাতার নাম <span class="text-red-500">*</span></label>
+                            <input type="text" id="motherName" required class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">মোবাইল নম্বর <span class="text-red-500">*</span></label>
+                            <input type="tel" id="mobileNumber" pattern="[0-9]{11}" required class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none" placeholder="01XXXXXXXXX">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Address -->
+                <div class="bg-green-50 p-6 rounded-lg border border-green-100">
+                     <h2 class="text-xl font-bold text-green-900 mb-6 flex items-center border-b border-green-200 pb-2">
+                        <span class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm"><i class="fas fa-map-marker-alt"></i></span>
+                        ঠিকানা
+                    </h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">বর্তমান ঠিকানা <span class="text-red-500">*</span></label>
+                            <textarea id="presentAddress" required rows="2" class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="flex items-center space-x-2 text-sm text-gray-600 mb-2 cursor-pointer">
+                                <input type="checkbox" id="sameAddress" class="text-green-600 rounded focus:ring-green-500">
+                                <span>বর্তমান এবং স্থায়ী ঠিকানা একই</span>
+                            </label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">স্থায়ী ঠিকানা</label>
+                            <textarea id="permanentAddress" rows="2" class="input-field w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Photo Upload (Modified for Preview) -->
+                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                    <h2 class="text-xl font-bold text-green-900 mb-6 flex items-center border-b border-gray-200 pb-2">
+                        <span class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm"><i class="fas fa-camera"></i></span>
+                        শিক্ষার্থীর ছবি
+                    </h2>
+                    <div class="flex items-center justify-center w-full">
+                        <label for="photo-upload" class="flex flex-col items-center justify-center w-full h-44 border-2 border-green-300 border-dashed rounded-lg cursor-pointer bg-green-50 hover:bg-green-100 transition-all relative overflow-hidden">
+                            <!-- Image Preview Container -->
+                            <div id="imagePreviewContainer" class="hidden absolute inset-0 w-full h-full bg-center bg-cover z-10"></div>
+                            
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6 z-20" id="uploadPlaceholder">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-green-500 mb-3"></i>
+                                <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">ছবি আপলোড করতে ক্লিক করুন</span></p>
+                                <p class="text-xs text-gray-500">PNG, JPG (পাসপোর্ট সাইজ)</p>
+                            </div>
+                            <input id="photo-upload" type="file" class="hidden" accept="image/*" required />
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4 text-center">
+                    <button type="submit" class="w-full md:w-1/2 px-10 py-4 bg-gradient-to-r from-green-700 to-green-900 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition duration-300 flex items-center justify-center mx-auto text-xl">
+                        <i class="fas fa-check-circle mr-3"></i> আবেদন সম্পন্ন করুন
+                    </button>
+                    <p class="text-gray-500 text-sm mt-4">সাবমিট করার পর আপনি ফরমটি পিডিএফ আকারে ডাউনলোড করতে পারবেন।</p>
+                </div>
+            </form>
+        </div>
+
+        <!-- ==================== PDF PREVIEW & DOWNLOAD SECTION (Hidden Initially) ==================== -->
+        <div id="pdfPreviewSection" class="hidden bg-white">
+            <!-- Actions Bar (Buttons) -->
+            <div class="bg-gray-100 p-4 flex flex-col md:flex-row justify-between items-center border-b border-gray-300 no-print">
+                <div class="mb-4 md:mb-0 text-center md:text-left">
+                    <h3 class="text-lg font-bold text-green-900"><i class="fas fa-file-pdf mr-2"></i>আবেদন সফল হয়েছে!</h3>
+                    <p class="text-sm text-gray-600">নিচের বাটনে ক্লিক করে আপনার কপি ডাউনলোড করুন।</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="editForm()" class="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition flex items-center">
+                        <i class="fas fa-edit mr-2"></i> পরিবর্তন করুন
+                    </button>
+                    <button id="downloadBtn" onclick="generatePDF()" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition flex items-center animate-pulse">
+                         <i class="fas fa-download mr-3"></i> PDF ডাউনলোড করুন
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable Area (This part will be converted to PDF) -->
+            <div id="printableArea" class="p-8 md:p-12 bg-white relative">
+                <!-- Watermark -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                    <i class="fas fa-mosque text-[300px] text-green-900"></i>
+                </div>
+
+                <!-- Header Copy for PDF -->
+                <div class="text-center mb-8 border-b-2 border-green-900 pb-4">
+                     <p class="text-lg font-serif text-green-800">বিসমিল্লাহির রাহমানির রাহিম</p>
+                    <h1 class="text-4xl font-bold text-green-900 mb-2">আবদুর রাজ্জাক দাখিল মাদ্রাসা</h1>
+                    <p class="text-sm">স্থাপিত: ২০১৮ ইং | ইআইআইএন: ১২৩৪৫৬</p>
+                    <p class="text-sm">ডাকঘর: সরফভাটা, থানা: রাঙ্গুনিয়া, জেলা: চট্টগ্রাম</p>
+                    <div class="mt-4 inline-block bg-green-900 text-white px-8 py-2 text-xl font-bold uppercase tracking-wider">ভর্তি আবেদন ফরম</div>
+                </div>
+                
+                <div class="flex flex-col-reverse md:flex-row gap-8 relative z-10">
+                    <!-- Left Side: Info -->
+                    <div class="w-full md:w-3/4 space-y-6">
+                        <!-- Class & Roll Info Block -->
+                        <div class="bg-green-50 p-4 border border-green-200 grid grid-cols-2 gap-4">
+                            <div><span class="label-text">আবেদনের তারিখ:</span> <span id="prevDate" class="value-text"></span></div>
+                            <div><span class="label-text">ভর্তি শ্রেণী:</span> <span id="prevClass" class="value-text text-lg font-bold text-green-900"></span></div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-bold text-green-900 border-b border-gray-300 mb-3">শিক্ষার্থীর তথ্য</h3>
+                             <div class="grid grid-cols-2 gap-4 items-end">
+                                <div><span class="label-text">নাম (বাংলায়):</span> <span id="prevNameBn" class="value-text text-lg"></span></div>
+                                <div><span class="label-text">নাম (ইংরেজিতে):</span> <span id="prevNameEn" class="value-text"></span></div>
+                                <div><span class="label-text">জন্ম তারিখ:</span> <span id="prevDob" class="value-text"></span></div>
+                                <div><span class="label-text">লিঙ্গ:</span> <span id="prevGender" class="value-text"></span></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-bold text-green-900 border-b border-gray-300 mb-3 mt-6">অভিভাবকের তথ্য</h3>
+                            <div class="grid grid-cols-2 gap-4 items-end">
+                                <div class="col-span-2 md:col-span-1"><span class="label-text">পিতার নাম:</span> <span id="prevFather" class="value-text"></span></div>
+                                <div class="col-span-2 md:col-span-1"><span class="label-text">মাতার নাম:</span> <span id="prevMother" class="value-text"></span></div>
+                                <div class="col-span-2"><span class="label-text">মোবাইল নম্বর:</span> <span id="prevMobile" class="value-text font-bold"></span></div>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h3 class="text-lg font-bold text-green-900 border-b border-gray-300 mb-3 mt-6">ঠিকানা</h3>
+                            <div class="space-y-3">
+                                <div><span class="label-text block">বর্তমান ঠিকানা:</span> <span id="prevPresentAddr" class="value-text"></span></div>
+                                <div><span class="label-text block">স্থায়ী ঠিকানা:</span> <span id="prevPermAddr" class="value-text"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Photo & Signature -->
+                    <div class="w-full md:w-1/4 flex flex-col items-center space-y-8">
+                        <div class="border-4 border-green-200 p-1 bg-white shadow-md">
+                            <!-- Preview Image will be shown here -->
+                            <img id="prevStudentPhoto" src="" alt="Student Photo" class="w-40 h-48 object-cover bg-gray-100">
+                        </div>
+                        
+                        <div class="w-full mt-auto pt-16 text-center">
+                            <div class="border-t-2 border-dashed border-gray-400 w-3/4 mx-auto"></div>
+                            <p class="text-sm font-semibold mt-2">অভিভাবকের স্বাক্ষর</p>
+                        </div>
+                    </div>
+                </div>
+                 
+                <!-- Declaration & Official Use -->
+                <div class="mt-12 pt-6 border-t-2 border-green-900 relative z-10">
+                     <p class="text-xs text-gray-600 text-center mb-8">আমি প্রত্যয়ন করছি যে, উপরে প্রদত্ত সকল তথ্য সঠিক। আমি মাদ্রাসার যাবতীয় নিয়ম-কানুন মেনে চলতে বাধ্য থাকিব।</p>
+                     
+                     <div class="grid grid-cols-3 gap-4 text-center pt-8 border-t border-gray-300">
+                         <div><div class="border-t border-gray-400 w-3/4 mx-auto"></div><p class="text-xs mt-1">শ্রেণী শিক্ষকের স্বাক্ষর</p></div>
+                         <div><div class="border-t border-gray-400 w-3/4 mx-auto"></div><p class="text-xs mt-1">অফিস সহকারী</p></div>
+                         <div><div class="border-t border-gray-400 w-3/4 mx-auto"></div><p class="text-xs font-bold mt-1">সুপারিনটেনডেন্ট এর স্বাক্ষর</p></div>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-gray-100 py-6 text-center border-t border-gray-200" id="mainFooter">
+            <p class="text-sm text-gray-600">© ২০২৫ আবদুর রাজ্জাক দাখিল মাদ্রাসা | সর্বস্বত্ব সংরক্ষিত</p>
+        </footer>
+    </div>
+
+    <!-- Loading Indicator for PDF Generation -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-xl flex items-center space-x-4">
+            <i class="fas fa-spinner fa-spin text-3xl text-green-600"></i>
+            <p class="text-lg font-semibold">PDF তৈরি হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
+        </div>
+    </div>
+
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        let uploadedImageDataUrl = "";
+
+        // === 1. Image Upload Preview Fix ===
+        document.getElementById('photo-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageDataUrl = e.target.result;
+                    // Show preview in the form itself
+                    const previewContainer = document.getElementById('imagePreviewContainer');
+                    previewContainer.style.backgroundImage = `url(${uploadedImageDataUrl})`;
+                    previewContainer.classList.remove('hidden');
+                    document.getElementById('uploadPlaceholder').classList.add('opacity-0'); // Hide placeholder icon
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // === 2. Address Copy Logic ===
+        document.getElementById('sameAddress').addEventListener('change', function() {
+            const present = document.getElementById('presentAddress');
+            const permanent = document.getElementById('permanentAddress');
+            permanent.value = this.checked ? present.value : '';
+            permanent.readOnly = this.checked;
+        });
+
+        // === 3. Form Submission & Switch to Preview ===
+        document.getElementById('admissionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Populate Preview Data
+            document.getElementById('prevDate').innerText = new Date().toLocaleDateString('bn-BD');
+            document.getElementById('prevClass').innerText = document.getElementById('admissionClass').value;
+            document.getElementById('prevNameBn').innerText = document.getElementById('studentNameBn').value;
+            document.getElementById('prevNameEn').innerText = document.getElementById('studentNameEn').value || '-';
+            document.getElementById('prevDob').innerText = document.getElementById('dob').value;
+            document.getElementById('prevGender').innerText = document.querySelector('input[name="gender"]:checked').value;
+            document.getElementById('prevFather').innerText = document.getElementById('fatherName').value;
+            document.getElementById('prevMother').innerText = document.getElementById('motherName').value;
+            document.getElementById('prevMobile').innerText = document.getElementById('mobileNumber').value;
+            document.getElementById('prevPresentAddr').innerText = document.getElementById('presentAddress').value;
+            document.getElementById('prevPermAddr').innerText = document.getElementById('permanentAddress').value || document.getElementById('presentAddress').value;
+            
+            // Set photo in preview
+            if (uploadedImageDataUrl) {
+                 document.getElementById('prevStudentPhoto').src = uploadedImageDataUrl;
+            }
+
+            // Switch Views
+            document.getElementById('formSection').classList.add('hidden');
+            document.getElementById('formHeader').classList.add('hidden');
+            document.getElementById('formTitleBar').classList.add('hidden');
+            document.getElementById('mainFooter').classList.add('hidden');
+            document.getElementById('pdfPreviewSection').classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // === 4. Go Back / Edit Function ===
+        function editForm() {
+             document.getElementById('pdfPreviewSection').classList.add('hidden');
+             document.getElementById('formSection').classList.remove('hidden');
+             document.getElementById('formHeader').classList.remove('hidden');
+             document.getElementById('formTitleBar').classList.remove('hidden');
+             document.getElementById('mainFooter').classList.remove('hidden');
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // === 5. Generate and Download PDF ===
+        function generatePDF() {
+            const downloadBtn = document.getElementById('downloadBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const elementToPrint = document.getElementById('printableArea');
+
+            // Show loading state
+            loadingOverlay.classList.remove('hidden');
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> প্রসেসিং হচ্ছে...';
+
+            // Use html2canvas to take a screenshot of the printable area
+            html2canvas(elementToPrint, {
+                scale: 2, // Higher scale for better quality
+                useCORS: true, // Important for images
+                logging: false,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                
+                // A4 Size: 210mm x 297mm
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                
+                // Add image to PDF (with top margin)
+                pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+                
+                // Generate filename based on student name and class
+                const studentName = document.getElementById('studentNameEn').value.replace(/\s+/g, '_') || 'Student';
+                const admissionClass = document.getElementById('admissionClass').value.replace(/\s+/g, '_');
+                pdf.save(`Admission_${admissionClass}_${studentName}.pdf`);
+
+                // Reset loading state
+                loadingOverlay.classList.add('hidden');
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = '<i class="fas fa-check mr-2"></i> ডাউনলোড সম্পন্ন!';
+                downloadBtn.classList.remove('animate-pulse', 'from-blue-600', 'to-blue-800');
+                downloadBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                setTimeout(() => {
+                     downloadBtn.innerHTML = '<i class="fas fa-download mr-3"></i> আবার ডাউনলোড করুন';
+                     downloadBtn.classList.add('from-blue-600', 'to-blue-800');
+                     downloadBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>
+
